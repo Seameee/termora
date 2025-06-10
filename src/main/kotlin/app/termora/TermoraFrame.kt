@@ -271,31 +271,23 @@ class TermoraFrame : JFrame(), DataProvider {
             val imageHeight = img.height
 
             // 计算缩放比例，以覆盖整个组件区域并保持宽高比
-            val imageRatio = imageWidth.toDouble() / imageHeight
-            val componentRatio = componentWidth.toDouble() / componentHeight
+            val scaleX = componentWidth.toDouble() / imageWidth
+            val scaleY = componentHeight.toDouble() / imageHeight
+            val scale = max(scaleX, scaleY)
 
-            var finalWidth: Int
-            var finalHeight: Int
-
-            if (componentRatio > imageRatio) {
-                // 组件更宽，图片高度匹配组件高度，宽度按比例缩放
-                finalHeight = componentHeight
-                finalWidth = (componentHeight * imageRatio).toInt()
-            } else {
-                // 组件更高或比例相同，图片宽度匹配组件宽度，高度按比例缩放
-                finalWidth = componentWidth
-                finalHeight = (componentWidth / imageRatio).toInt()
-            }
+            // 计算缩放后的图片尺寸
+            val scaledWidth = (imageWidth * scale).toInt()
+            val scaledHeight = (imageHeight * scale).toInt()
 
             // 计算绘制图片的起始坐标，以实现居中
-            val drawX = (componentWidth - finalWidth) / 2
-            val drawY = (componentHeight - finalHeight) / 2
+            val drawX = (componentWidth - scaledWidth) / 2
+            val drawY = (componentHeight - scaledHeight) / 2
 
             g2d.composite = AlphaComposite.getInstance(
                 AlphaComposite.SRC_OVER,
                 if (FlatLaf.isLafDark()) 0.2f else 0.1f
             )
-            g2d.drawImage(img, drawX, drawY, finalWidth, finalHeight, null)
+            g2d.drawImage(img, drawX, drawY, scaledWidth, scaledHeight, null)
             g2d.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER)
         }
 
