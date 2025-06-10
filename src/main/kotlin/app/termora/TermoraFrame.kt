@@ -264,10 +264,6 @@ class TermoraFrame : JFrame(), DataProvider {
         override fun paintComponent(g: Graphics) {
             val img = BackgroundManager.getInstance().getBackgroundImage() ?: return
             val g2d = g as Graphics2D
-            g2d.composite = AlphaComposite.getInstance(
-                AlphaComposite.SRC_OVER,
-                if (FlatLaf.isLafDark()) 0.2f else 0.1f
-            )
             // 获取组件和图片的尺寸
             val componentWidth = width
             val componentHeight = height
@@ -275,19 +271,31 @@ class TermoraFrame : JFrame(), DataProvider {
             val imageHeight = img.height
 
             // 计算缩放比例，以覆盖整个组件区域并保持宽高比
-            val scaleX = componentWidth.toDouble() / imageWidth
-            val scaleY = componentHeight.toDouble() / imageHeight
-            val scale = max(scaleX, scaleY)
+            val imageRatio = imageWidth.toDouble() / imageHeight
+            val componentRatio = componentWidth.toDouble() / componentHeight
 
-            // 计算缩放后的图片尺寸
-            val scaledWidth = (imageWidth * scale).toInt()
-            val scaledHeight = (imageHeight * scale).toInt()
+            var finalWidth: Int
+            var finalHeight: Int
+
+            if (componentRatio > imageRatio) {
+                // 组件更宽，图片高度匹配组件高度，宽度按比例缩放
+                finalHeight = componentHeight
+                finalWidth = (componentHeight * imageRatio).toInt()
+            } else {
+                // 组件更高或比例相同，图片宽度匹配组件宽度，高度按比例缩放
+                finalWidth = componentWidth
+                finalHeight = (componentWidth / imageRatio).toInt()
+            }
 
             // 计算绘制图片的起始坐标，以实现居中
-            val drawX = (componentWidth - scaledWidth) / 2
-            val drawY = (componentHeight - scaledHeight) / 2
+            val drawX = (componentWidth - finalWidth) / 2
+            val drawY = (componentHeight - finalHeight) / 2
 
-            g2d.drawImage(img, drawX, drawY, scaledWidth, scaledHeight, null)
+            g2d.composite = AlphaComposite.getInstance(
+                AlphaComposite.SRC_OVER,
+                if (FlatLaf.isLafDark()) 0.2f else 0.1f
+            )
+            g2d.drawImage(img, drawX, drawY, finalWidth, finalHeight, null)
             g2d.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER)
         }
 
