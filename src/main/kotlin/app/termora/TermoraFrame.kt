@@ -21,6 +21,7 @@ import java.awt.event.MouseMotionListener
 import java.util.*
 import javax.imageio.ImageIO
 import javax.swing.JComponent
+import kotlin.math.max
 import javax.swing.JFrame
 import javax.swing.SwingUtilities
 import javax.swing.SwingUtilities.isEventDispatchThread
@@ -267,7 +268,26 @@ class TermoraFrame : JFrame(), DataProvider {
                 AlphaComposite.SRC_OVER,
                 if (FlatLaf.isLafDark()) 0.2f else 0.1f
             )
-            g2d.drawImage(img, 0, 0, width, height, null)
+            // 获取组件和图片的尺寸
+            val componentWidth = width
+            val componentHeight = height
+            val imageWidth = img.width
+            val imageHeight = img.height
+
+            // 计算缩放比例，以覆盖整个组件区域并保持宽高比
+            val scaleX = componentWidth.toDouble() / imageWidth
+            val scaleY = componentHeight.toDouble() / imageHeight
+            val scale = max(scaleX, scaleY)
+
+            // 计算缩放后的图片尺寸
+            val scaledWidth = (imageWidth * scale).toInt()
+            val scaledHeight = (imageHeight * scale).toInt()
+
+            // 计算绘制图片的起始坐标，以实现居中
+            val drawX = (componentWidth - scaledWidth) / 2
+            val drawY = (componentHeight - scaledHeight) / 2
+
+            g2d.drawImage(img, drawX, drawY, scaledWidth, scaledHeight, null)
             g2d.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER)
         }
 
