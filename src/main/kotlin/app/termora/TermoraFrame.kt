@@ -261,6 +261,10 @@ class TermoraFrame : JFrame(), DataProvider {
 
 
     private class GlassPane : JComponent() {
+        init {
+            isFocusable = false
+        }
+
         override fun paintComponent(g: Graphics) {
             val img = BackgroundManager.getInstance().getBackgroundImage() ?: return
             val g2d = g as Graphics2D
@@ -289,6 +293,10 @@ class TermoraFrame : JFrame(), DataProvider {
             )
             g2d.drawImage(img, drawX, drawY, scaledWidth, scaledHeight, null)
             g2d.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER)
+        }
+
+        override fun contains(x: Int, y: Int): Boolean {
+            return false
         }
 
     }
